@@ -1,0 +1,52 @@
+.shell {
+  --map-canvas: #000000;
+  --map-panel: #111210;
+  --map-node: #0b0c0a;
+  --map-border: #363833;
+  --map-text: #e5e7df;
+  --map-muted: #a0a398;
+  --map-selected: #ffb800;
+  background: var(--map-canvas);
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
+  height: 100dvh;
+  min-width: 48rem;
+  overflow: hidden;
+}
+
+.rail,
+.detail {
+  background: var(--map-panel);
+  min-height: 0;
+  min-width: 0;
+}
+
+.rail {
+  border-right: 1px solid var(--map-border);
+  padding:24px 18px;
+  overflow-y:auto;
+  color:var(--map-muted);
+  font:12px var(--font-geist-mono),monospace;
+}
+.rail h1 {color:var(--map-text);font-size:13px;margin:0 0 8px;font-weight:500;}
+.rail h2 {margin:32px 0 8px;padding-bottom:10px;border-bottom:1px solid var(--map-border);font-size:11px;font-weight:500;color:var(--map-muted);}
+.rail p {font-size:11px;line-height:1.8;margin:12px 0;}
+.category {display:flex;align-items:center;gap:10px;padding:9px 0;color:var(--map-text);}
+.category span {width:8px;height:8px;}
+.category small {margin-left:auto;color:var(--map-muted);font-size:11px;}
+
+.stage {
+  background-color: var(--map-canvas);
+  --xy-background-color: var(--map-canvas);
+  --xy-controls-button-background-color: var(--map-panel);
+  --xy-controls-button-background-color-hover: #252721;
+  --xy-controls-button-color: var(--map-text);
+  --xy-controls-button-border-color: var(--map-border);
+  min-height: 0;
+  min-width: 0;
+}
+
+.detail {
+  border-left: 1px solid var(--map-border);
+}

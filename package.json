@@ -7,12 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "parse": "node parser/cli.ts"
+    "parse": "node parser/cli.ts",
+    "map-counts": "node graph/check.mts"
   },
   "dependencies": {
     "@clerk/nextjs": "7.10.7",
+    "@dagrejs/dagre": "^3.1.3",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.119.2",
+    "@xyflow/react": "^13.0.2",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",

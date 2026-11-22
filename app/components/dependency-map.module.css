@@ -1,0 +1,12 @@
+.folder { background:var(--map-node); border:1px solid var(--map-border); border-radius:0; height:100%; color:var(--map-text); font:12px var(--font-geist-mono),monospace; position:relative; }
+.header { display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:12px; width:100%; text-align:left; cursor:pointer; }
+.header strong { font-weight:500; display:flex;align-items:center;gap:8px; }
+.header strong::before {content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(-45deg);}
+.header[aria-expanded=true] strong::before {transform:rotate(45deg);}
+.header span { font-size:10px; color:var(--map-muted); }
+.row { position:relative; height:26px; border-top:1px solid var(--map-border); padding:0 10px; display:flex; align-items:center; }
+.row button { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; width:100%; cursor:pointer; }
+.row button[aria-pressed=true] { color:var(--map-selected); }
+.header:hover,.row:hover { background:#22241e; }
+.folder:focus-within {border-color:var(--map-selected);}
+.header:focus-visible,.row button:focus-visible {outline:1px solid var(--map-selected);outline-offset:-3px;}
