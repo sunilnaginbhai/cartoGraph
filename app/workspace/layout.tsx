@@ -6,15 +6,17 @@ export default function WorkspaceLayout({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <a className="product-mark" href="/workspace">
-          Cartograph
-        </a>
-        <div className="app-header-actions">
+        <div className="app-header-identity">
+          <a className="product-mark" href="/workspace">
+            Cartograph
+          </a>
           <OrganizationSwitcher
             afterCreateOrganizationUrl="/workspace"
             afterSelectOrganizationUrl="/workspace"
             hidePersonal
           />
+        </div>
+        <div className="app-header-actions">
           <ThemeControl />
           <UserButton />
         </div>

@@ -15,13 +15,15 @@ function environmentValue(name: RequiredSupabaseEnvironment) {
   return value;
 }
 
-export function createServerSupabaseClient() {
+export async function createServerSupabaseClient() {
+  const token = await (await auth()).getToken();
+
   return createClient(
     environmentValue("NEXT_PUBLIC_SUPABASE_URL"),
     environmentValue("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
     {
       async accessToken() {
-        return (await auth()).getToken();
+        return token;
       },
     },
   );
