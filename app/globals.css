@@ -21,6 +21,9 @@
   --space-8: 2rem;
   --radius: 0.375rem;
   --control-height: 2.5rem;
+  --canvas-rail-width: 13rem;
+  --canvas-detail-width: 18rem;
+  --canvas-toolbar-height: 3rem;
 }
 
 :root[data-theme="dark"] {
@@ -134,5 +137,18 @@ button:focus-visible, a:focus-visible { outline: 0.1875rem solid var(--focus); }
 .cl-organizationSwitcherPopoverActionButton svg {
   color: var(--ink-muted) !important;
 }
+
+.canvas-shell { background: var(--surface); min-height: 100vh; overflow-x: auto; }
+.canvas-toolbar { align-items: center; background: var(--surface-raised); border-bottom: 1px solid var(--line); display: flex; height: var(--canvas-toolbar-height); justify-content: space-between; min-width: calc(var(--canvas-rail-width) + var(--canvas-detail-width) + 32rem); padding: 0 var(--space-3); }
+.canvas-toolbar-context { align-items: center; color: var(--ink-muted); display: flex; font-size: 0.75rem; gap: var(--space-2); }
+.canvas-columns { display: grid; grid-template-columns: var(--canvas-rail-width) minmax(32rem, 1fr) var(--canvas-detail-width); height: calc(100vh - var(--canvas-toolbar-height)); min-height: 32rem; min-width: calc(var(--canvas-rail-width) + var(--canvas-detail-width) + 32rem); }
+.canvas-rail, .canvas-detail { background: var(--surface-raised); min-width: 0; }
+.canvas-rail { border-right: 1px solid var(--line); }
+.canvas-detail { border-left: 1px solid var(--line); }
+.canvas-stage { display: grid; grid-template-rows: auto 1fr; min-width: 0; }
+.canvas-pane-header { align-items: center; border-bottom: 1px solid var(--line); display: flex; min-height: 2.5rem; padding: 0 var(--space-3); }
+.canvas-pane-header h1, .canvas-pane-header h2 { font-size: 0.75rem; font-weight: 650; margin: 0; }
+.canvas-pane-empty { color: var(--ink-muted); font-size: 0.75rem; line-height: 1.5; margin: 0; padding: var(--space-3); }
+.canvas-stage-surface { background-color: var(--surface); background-image: radial-gradient(circle, var(--grid-line) 1px, transparent 1px); background-size: var(--space-4) var(--space-4); min-height: 0; }
 
 @media (max-width: 42rem) { .app-header { align-items: flex-start; flex-direction: column; } .app-header-actions, .app-header-identity { justify-content: space-between; width: 100%; } .auth-page { grid-template-columns: 1fr; place-content: start center; } }
