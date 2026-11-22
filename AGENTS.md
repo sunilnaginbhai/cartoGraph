@@ -113,7 +113,7 @@ Breaking one of these is worse than not finishing.
 - **Don't install a package without asking.** Name it, say what for, wait.
 - **Don't build ahead of the current phase.** No scaffolding for what's coming.
 - **Don't grade the code.** No scores, ratings, severity or "issues found". This
-  explains a codebase, it doesn't review one.
+  explains a codebase, it doesn't review one
 - **Don't leave the build broken.** Tell me about a failure instead of working
   around it.
 - **Don't weaken a check to make it pass.** A check that can't run has to fail
