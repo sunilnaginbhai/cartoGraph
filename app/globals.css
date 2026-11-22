@@ -91,5 +91,25 @@ button:focus-visible, a:focus-visible { outline: 0.1875rem solid var(--focus); }
 .auth-intro > p:not(.product-mark) { color: var(--ink-muted); line-height: 1.6; margin: 0; }
 .cl-card { box-shadow: none; }
 .cl-formButtonPrimary { box-shadow: none; font-weight: 650; }
+.cl-organizationSwitcherTrigger,
+.cl-organizationSwitcherTrigger:hover,
+.cl-organizationSwitcherTrigger:focus-visible,
+.cl-organizationPreviewMainIdentifier {
+  color: var(--ink) !important;
+}
+.cl-organizationPreviewSecondaryIdentifier {
+  color: var(--ink-muted) !important;
+}
+.cl-organizationSwitcherPopoverActionButton {
+  color: var(--ink) !important;
+}
+.cl-organizationSwitcherPopoverActionButton:hover,
+.cl-organizationSwitcherPopoverActionButton:focus-visible {
+  background: var(--surface-muted) !important;
+  color: var(--ink) !important;
+}
+.cl-organizationSwitcherPopoverActionButton svg {
+  color: var(--ink-muted) !important;
+}
 
 @media (max-width: 42rem) { .app-header { align-items: flex-start; flex-direction: column; } .app-header-actions { width: 100%; } .auth-page { grid-template-columns: 1fr; place-content: start center; } }
