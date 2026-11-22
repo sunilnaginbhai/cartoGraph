@@ -1,0 +1,108 @@
+.pane {
+  display: flex;
+  flex-direction: column;
+  color: var(--map-text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.header {
+  flex: none;
+  padding: 20px 14px 0;
+  border-bottom: 1px solid var(--map-border);
+}
+
+.header p {
+  margin: 0 0 4px;
+  color: var(--map-muted);
+}
+
+.header h2 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.copyButton {
+  border: 1px solid var(--map-border);
+  border-radius: 6px;
+  background: var(--map-node);
+  color: var(--map-muted);
+  cursor: pointer;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  margin: 0 0 10px;
+  padding: 5px 8px;
+}
+.copyButton:hover { border-color: var(--map-selected); color: var(--map-text); }
+.explanation {
+  margin: 0;
+  color: var(--map-text);
+  line-height: 1.7;
+  max-width: 44ch;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tabs button {
+  padding: 7px 0;
+  border-bottom: 2px solid transparent;
+  color: var(--map-muted);
+  cursor: pointer;
+}
+
+.tabs button[aria-selected="true"] {
+  border-color: var(--map-selected);
+  color: var(--map-text);
+}
+
+.body {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--map-border) transparent;
+  padding: 12px 14px 20px;
+}
+
+.facts { margin: 0; }
+.facts div, .paths li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.facts div { padding: 4px 0; }
+.facts dt, .paths li > span, .muted { color: var(--map-muted); }
+.facts dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.muted { margin: 0; }
+
+.section { margin-top: 16px; border-top: 1px solid var(--map-border); padding-top: 10px; }
+.section:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+.section h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; }
+.paths { list-style: none; padding: 0; margin: 0; }
+.paths li + li { border-top: 1px solid var(--map-border); }
+
+.path {
+  display: block;
+  width: 100%;
+  padding: 5px 0;
+  text-align: left;
+  font-family: var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.path:hover, .pane [data-map-hover="true"] {
+  color: var(--map-selected);
+  background: color-mix(in srgb, var(--map-selected) 10%, var(--map-panel));
+}
+
+.pane button:focus-visible {
+  outline: 1px solid var(--map-selected);
+  outline-offset: 2px;
+}
