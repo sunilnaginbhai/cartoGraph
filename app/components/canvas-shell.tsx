@@ -4,29 +4,29 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, ty
 
 import styles from "./canvas-shell.module.css";
 import { DependencyMap } from './dependency-map';
-import raw from '../preview/analysis.json';
-import { isParserResult } from '../../parser/validate';
 import { ThemeControl } from './theme-control';
+import type { ParserResult } from '../../parser/types';
 
-function validatedResult() {
-  if (!isParserResult(raw)) throw new Error('Preview fixture does not match the parser contract.');
-  return raw;
-}
-const result = validatedResult();
-const repository = 'excalidraw / excalidraw';
+type CanvasShellProps = {
+  analysisId: number;
+  repository: string;
+  result: ParserResult;
+  rerunAction: (formData: FormData) => void | Promise<void>;
+  showThemeControl?: boolean;
+};
 
-export function CanvasShell() {
+export function CanvasShell({ analysisId, repository, result, rerunAction, showThemeControl = true }: CanvasShellProps) {
   const shellRef = useRef<HTMLDivElement>(null);
-  const [leftWidth, setLeftWidth] = useState(() => {
-    if (typeof window === "undefined") return 260;
-    const savedLeft = Number(localStorage.getItem("cartograph-left-pane"));
-    return savedLeft >= 180 && savedLeft <= 520 ? savedLeft : 260;
-  });
-  const [rightWidth, setRightWidth] = useState(() => {
-    if (typeof window === "undefined") return 260;
-    const savedRight = Number(localStorage.getItem("cartograph-right-pane"));
-    return savedRight >= 180 && savedRight <= 520 ? savedRight : 260;
-  });
+  const hasPersistedLeft = useRef(false);
+  const hasPersistedRight = useRef(false);
+  const [leftWidth, setLeftWidth] = useState(260);
+  const [rightWidth, setRightWidth] = useState(260);
+  const [category, setCategory] = useState<string | null>(null);
+  const extensions = [...new Set(result.files.map(file => file.extension))].sort();
+  const internalImports = result.coverage.importsResolved + result.coverage.importsExcluded + result.coverage.importsUnresolved;
+  const fileCoverage = result.coverage.filesFound === 0 ? 100 : result.coverage.filesParsed / result.coverage.filesFound * 100;
+  const importCoverage = internalImports === 0 ? 100 : result.coverage.importsResolved / internalImports * 100;
+  const coverage = Math.round(Math.min(fileCoverage, importCoverage));
 
   function startResize(side: "left" | "right", event: ReactPointerEvent<HTMLDivElement>) {
     event.preventDefault();
@@ -69,11 +69,30 @@ export function CanvasShell() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const savedLeft = Number(localStorage.getItem("cartograph-left-pane"));
+    const savedRight = Number(localStorage.getItem("cartograph-right-pane"));
+    const frame = window.requestAnimationFrame(() => {
+      if (savedLeft >= 180 && savedLeft <= 520) setLeftWidth(savedLeft);
+      if (savedRight >= 180 && savedRight <= 520) setRightWidth(savedRight);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!hasPersistedLeft.current) {
+      hasPersistedLeft.current = true;
+      return;
+    }
     localStorage.setItem("cartograph-left-pane", String(leftWidth));
   }, [leftWidth]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!hasPersistedRight.current) {
+      hasPersistedRight.current = true;
+      return;
+    }
     localStorage.setItem("cartograph-right-pane", String(rightWidth));
   }, [rightWidth]);
 
@@ -85,10 +104,18 @@ export function CanvasShell() {
     >
       <aside aria-label="Categories" className={styles.rail}>
         <h1>{repository}</h1>
-        <ThemeControl />
+        {showThemeControl && <ThemeControl />}
         <p>{result.files.length} files · {result.edges.length} imports</p>
+        <details className={styles.coverage} open={coverage < 95}>
+          <summary><span>Graph coverage</span><strong>{coverage}%</strong></summary>
+          <p>{coverage < 95 ? "This graph is partial." : "The parsed graph has high coverage."} {result.coverage.filesSkipped} files skipped and {result.coverage.importsUnresolved} imports unresolved.</p>
+        </details>
+        <form action={rerunAction} className={styles.rerunForm}>
+          <input type="hidden" name="analysisId" value={analysisId} />
+          <button type="submit">Re-run at latest commit</button>
+        </form>
         <h2>Extensions</h2>
-        {[...new Set(result.files.map(f=>f.extension))].sort().map((extension,index)=><div className={styles.category} key={extension}><span style={{background:['#8ba9cc','#ba9ccd','#87b6a1','#c4aa80'][index%4]}} />{extension}<small>{result.files.filter(f=>f.extension===extension).length}</small></div>)}
+        {extensions.map((extension, index) => <button type="button" className={styles.category} data-active={category === extension} aria-pressed={category === extension} key={extension} onClick={() => setCategory(current => current === extension ? null : extension)}><span data-swatch={index % 4} />{extension}<small>{result.files.filter(file => file.extension === extension).length}</small></button>)}
         <p>{result.coverage.filesSkipped} skipped · {result.coverage.importsUnresolved} unresolved</p>
       </aside>
       <div
@@ -99,7 +126,7 @@ export function CanvasShell() {
         onPointerDown={event => startResize("left", event)}
         onKeyDown={event => resizeWithKeyboard("left", event)}
       />
-      <DependencyMap result={result} repository={repository} />
+      <DependencyMap result={result} repository={repository} category={category} />
       <div
         aria-label="Resize details panel"
         className={`${styles.resizer} ${styles.rightResizer}`}

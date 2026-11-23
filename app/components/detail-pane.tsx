@@ -2,11 +2,34 @@ import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import type { ParserResult } from '../../parser/types';
 import type { buildRepositoryDetails } from '../../graph/details';
 import type { fold } from '../../graph/folding';
+import { findRepositoryInsights, walkGraph, type WalkDirection } from '../../graph/analysis';
 import styles from './detail-pane.module.css';
 
 type Details = ReturnType<typeof buildRepositoryDetails>;
 type Folder = ReturnType<typeof fold>['modules'][number];
 type Tab = 'structure' | 'explanation';
+
+function InfoButton({ id, title, description }: { id: string; title: string; description: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className={styles.infoControl}>
+      <button
+        type="button"
+        className={styles.infoButton}
+        aria-label={`About ${title}`}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen(current => !current)}
+      >
+        i
+      </button>
+      {open && <span id={id} className={styles.infoPopover} role="tooltip">
+        <strong>{title}</strong>
+        <span>{description}</span>
+      </span>}
+    </span>
+  );
+}
 
 type Props = {
   repository: string;
@@ -37,6 +60,9 @@ export function DetailPane({
   const importedBy = file ? [...(details.importedBy.get(file.path) ?? [])].sort() : [];
   const folderKinds = new Map<string, number>();
   const [copied, setCopied] = useState(false);
+  const [walk, setWalk] = useState<WalkDirection | null>(null);
+  const insights = findRepositoryInsights(result.files, result.edges);
+  const walked = file && walk ? walkGraph(file.path, result.edges, walk) : [];
   for (const member of folder?.files ?? []) {
     const kind = member.role ?? member.extension;
     folderKinds.set(kind, (folderKinds.get(kind) ?? 0) + 1);
@@ -115,6 +141,25 @@ export function DetailPane({
         ['Imports', imports.length],
         ['Imported by', importedBy.length],
       ]} />
+      <div className={styles.graphActions}>
+        <div className={styles.graphAction}>
+          <button type="button" aria-pressed={walk === 'dependants'} onClick={() => setWalk(current => current === 'dependants' ? null : 'dependants')}>Blast radius</button>
+          <InfoButton
+            id={`${id}-blast-radius-info`}
+            title="Blast radius"
+            description="Shows files reached by this file within two levels. Use it to estimate what changing this file could affect."
+          />
+        </div>
+        <div className={styles.graphAction}>
+          <button type="button" aria-pressed={walk === 'dependencies'} onClick={() => setWalk(current => current === 'dependencies' ? null : 'dependencies')}>Dependency chain</button>
+          <InfoButton
+            id={`${id}-dependency-chain-info`}
+            title="Dependency chain"
+            description="Shows dependencies reached from this file within two levels. Use it to trace what this file relies on."
+          />
+        </div>
+      </div>
+      {walk && pathList(`${walk === 'dependants' ? 'Blast radius' : 'Dependency chain'} (${walked.length})`, walked, `No ${walk === 'dependants' ? 'dependants' : 'dependencies'} within two levels.`)}
       {pathList('Imports', imports.map(path => ({ path })), 'No imports within the repository.')}
       {pathList('Imported by', importedBy.map(path => ({ path })), 'No files import this file.')}
     </>;
@@ -145,28 +190,44 @@ export function DetailPane({
     </>;
   }
 
+  const insightCount = insights.unimported.length + insights.highlyImported.length + insights.cycles.length + insights.oversized.length;
+  const insightPanel = <details className={styles.insights}>
+    <summary>
+      Insights <span>{insightCount}</span>
+    </summary>
+    <InsightGroup title="Files nothing imports" sentence="Nothing in the repository imports this file." paths={insights.unimported} pathButton={pathButton} />
+    <InsightGroup title="Unusually imported" sentence="An unusual number of repository files import this file." paths={insights.highlyImported.map(item => item.path)} pathButton={pathButton} />
+    <InsightGroup title="Import cycles" sentence="These files form an import cycle." paths={insights.cycles.map(cycle => cycle.join(' → '))} />
+    <InsightGroup title="Oversized files" sentence="This file is longer than 500 lines." paths={insights.oversized.map(item => item.path)} pathButton={pathButton} />
+  </details>;
+
   return <aside aria-label="Details" className={`${className} ${styles.pane}`}>
     <header className={styles.header}>
-      <p>{file ? 'File' : folder ? 'Folder' : 'Repository'}</p>
+      <div className={styles.headerTop}>
+        <p>{file ? 'File' : folder ? 'Folder' : 'Repository'}</p>
+      </div>
       <h2 data-map-hover={Boolean(mapHover && (mapHover === selection || (file && mapHover === owners.get(file.path))))}>
         {file ? pathButton(file.path) : folder ? folder.id : repository}
       </h2>
-      {selected && <button type="button" className={styles.copyButton} onClick={() => void copySelection()}>
-        {copied ? 'Copied' : 'Copy path'}
-      </button>}
+      {selected && <div className={styles.copyControl}>
+        <button type="button" className={styles.copyButton} onClick={() => void copySelection()}>
+          {copied ? 'Copied' : 'Copy path'}
+        </button>
+      </div>}
       {selected && <div role="tablist" aria-label="Detail view" className={styles.tabs}>
-        {tabs.map(name => <button
-          key={name}
-          type="button"
-          role="tab"
-          id={`${id}-${name}`}
-          aria-controls={`${id}-panel-${name}`}
-          aria-selected={tab === name}
-          data-tab={name}
-          tabIndex={tab === name ? 0 : -1}
-          onKeyDown={navigateTabs}
-          onClick={() => setTab(name)}
-        >{name === 'structure' ? 'Structure' : 'Explanation'}</button>)}
+        {tabs.map(name => <div className={styles.tabControl} key={name}>
+          <button
+            type="button"
+            role="tab"
+            id={`${id}-${name}`}
+            aria-controls={`${id}-panel-${name}`}
+            aria-selected={tab === name}
+            data-tab={name}
+            tabIndex={tab === name ? 0 : -1}
+            onKeyDown={navigateTabs}
+            onClick={() => setTab(name)}
+          >{name === 'structure' ? 'Structure' : 'Explanation'}</button>
+        </div>)}
       </div>}
     </header>
     <div className={styles.body} key={selection ?? 'repository'}>
@@ -178,8 +239,18 @@ export function DetailPane({
           <p className={styles.explanation}>{explanation}</p>
         </div>
       </> : structure}
+      {insightPanel}
     </div>
   </aside>;
+}
+
+function InsightGroup({ title, sentence, paths, pathButton }: { title: string; sentence: string; paths: string[]; pathButton?: (path: string) => ReactNode }) {
+  if (paths.length === 0) return null;
+  return <section className={styles.insightGroup}>
+    <h3>{title} <span>{paths.length}</span></h3>
+    <p>{sentence}</p>
+    <ul>{paths.map(path => <li key={path}>{pathButton ? pathButton(path) : path}</li>)}</ul>
+  </section>;
 }
 
 function Facts({ rows }: { rows: [string, string | number][] }) {

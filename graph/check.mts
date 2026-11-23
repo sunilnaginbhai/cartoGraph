@@ -1,6 +1,8 @@
 import { readParserResult } from '../parser/result.ts';
 import { fold } from './folding.ts';
-const result = await readParserResult(process.argv[2] ?? 'app/preview/analysis.json');
+const resultPath = process.argv[2];
+if (!resultPath) throw new Error('Usage: pnpm map-counts <parser-result.json>');
+const result = await readParserResult(resultPath);
 const graph = fold(result.files,result.edges);
 const singles=graph.modules.filter(m=>m.files.length<2).length;
 const missing=result.edges.filter(e=>!graph.owner.has(e.source)||!graph.owner.has(e.target)).length;

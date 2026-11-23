@@ -86,10 +86,19 @@ button:focus-visible, a:focus-visible { outline: 0.1875rem solid var(--focus); }
 .workspace-panel h1 { font-size: clamp(1.75rem, 5vw, 2.75rem); }
 .workspace-panel code { background: var(--surface-muted); border-radius: var(--radius); color: var(--ink); font-family: var(--font-geist-mono), monospace; padding: var(--space-1) var(--space-2); }
 .workspace-loading { color: var(--ink-muted); }
-.workspace-main { align-items: start; margin: 0 auto; max-width: 72rem; width: 100%; }
+.workspace-main { align-content: start; gap: var(--space-8); margin: 0 auto; max-width: 72rem; width: 100%; }
+.repository-entry { align-items: end; border-bottom: 1px solid var(--line); display: grid; gap: var(--space-8); grid-template-columns: minmax(14rem, 0.7fr) minmax(24rem, 1.3fr); padding-bottom: var(--space-8); width: 100%; }
+.repository-entry h1 { font-size: 1.5rem; letter-spacing: -0.035em; margin: 0 0 var(--space-2); }
+.repository-entry p { color: var(--ink-muted); font-size: 0.875rem; line-height: 1.5; margin: 0; max-width: 36rem; }
+.repository-form { display: grid; gap: var(--space-2); }
+.repository-form label { font-size: 0.75rem; font-weight: 650; }
+.repository-form > div { display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr) auto; }
+.repository-form input { background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink); font: 0.8125rem var(--font-geist-mono), monospace; min-height: var(--control-height); padding: 0 var(--space-3); }
+.repository-form input:focus-visible { border-color: var(--focus); outline: 0.1875rem solid var(--focus); outline-offset: var(--space-1); }
+.repository-form > span { color: var(--ink-muted); font-size: 0.75rem; }
 .analysis-panel { width: 100%; }
 .analysis-panel .workspace-panel-heading { justify-content: flex-start; gap: var(--space-2); margin-bottom: var(--space-3); }
-.analysis-panel h1 { font-size: 0.875rem; font-weight: 650; letter-spacing: -0.01em; margin: 0; }
+.analysis-panel h2 { font-size: 0.875rem; font-weight: 650; letter-spacing: -0.01em; margin: 0; }
 .analysis-count { color: var(--ink-muted); font-size: 0.8125rem; }
 .analysis-table-wrap { border: 1px solid var(--line); overflow-x: auto; }
 .analysis-table { border-collapse: collapse; font-size: 0.8125rem; width: 100%; }
@@ -100,11 +109,32 @@ button:focus-visible, a:focus-visible { outline: 0.1875rem solid var(--focus); }
 .analysis-table tbody tr:last-child td { border-bottom: 0; }
 .analysis-table tbody tr:hover { background: var(--surface-muted); }
 .analysis-repository { font-family: var(--font-geist-mono), monospace; font-size: 0.8125rem; }
+.analysis-repository a { color: var(--ink); font-weight: 600; }
+.analysis-repository small { color: var(--ink-muted); display: block; font-family: var(--font-geist-sans), sans-serif; margin-top: var(--space-1); }
 .analysis-commit { color: var(--ink-muted); font-family: var(--font-geist-mono), monospace; }
 .analysis-table time { color: var(--ink-muted); white-space: nowrap; }
 .analysis-status { color: var(--ink-muted); }
 .analysis-status[data-status="complete"] { color: var(--ink); }
 .analysis-status[data-status="failed"] { color: var(--ink); font-weight: 650; }
+.analysis-status[data-status="stale"] { border-bottom: 1px dotted currentColor; color: var(--ink); font-weight: 650; }
+.progress-main { display: grid; min-height: calc(100vh - 3.5rem); padding: var(--space-6); place-items: start center; }
+.progress-panel { background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius); margin-top: 8vh; max-width: 44rem; padding: var(--space-6); width: 100%; }
+.progress-heading { align-items: start; border-bottom: 1px solid var(--line); display: flex; gap: var(--space-4); justify-content: space-between; padding-bottom: var(--space-4); }
+.progress-heading p { color: var(--ink-muted); font: 0.75rem var(--font-geist-mono), monospace; margin: 0 0 var(--space-1); }
+.progress-heading h1 { font: 600 1rem var(--font-geist-mono), monospace; margin: 0; overflow-wrap: anywhere; }
+.progress-heading > span { color: var(--ink-muted); font-size: 0.75rem; white-space: nowrap; }
+.stage-list { list-style: none; margin: var(--space-4) 0; padding: 0; }
+.stage-list li { align-items: start; display: grid; gap: var(--space-3); grid-template-columns: 1.75rem 1fr; padding: var(--space-3) 0; }
+.stage-list li > span { align-items: center; background: var(--surface-muted); border: 1px solid var(--line); border-radius: 50%; color: var(--ink-muted); display: inline-flex; font: 0.75rem var(--font-geist-mono), monospace; height: 1.75rem; justify-content: center; width: 1.75rem; }
+.stage-list strong, .stage-list small { display: block; }
+.stage-list strong { font-size: 0.8125rem; }
+.stage-list small { color: var(--ink-muted); font-size: 0.75rem; margin-top: var(--space-1); }
+.stage-list li[data-state="active"] > span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.stage-list li[data-state="done"] > span { color: var(--ink); }
+.progress-note, .progress-error { border-top: 1px solid var(--line); color: var(--ink-muted); font: 0.75rem var(--font-geist-mono), monospace; margin: 0; padding-top: var(--space-4); }
+.progress-error strong { color: var(--ink); }
+.progress-error p { margin: var(--space-2) 0; }
+.progress-error a { color: var(--accent); }
 .analysis-empty { color: var(--ink-muted); display: grid; gap: var(--space-1); padding: var(--space-8) var(--space-4); text-align: center; }
 .analysis-empty p { color: var(--ink); font-size: 0.875rem; font-weight: 650; margin: 0; }
 .analysis-empty span { font-size: 0.8125rem; }
@@ -135,4 +165,4 @@ button:focus-visible, a:focus-visible { outline: 0.1875rem solid var(--focus); }
   color: var(--ink-muted) !important;
 }
 
-@media (max-width: 42rem) { .app-header { align-items: flex-start; flex-direction: column; } .app-header-actions, .app-header-identity { justify-content: space-between; width: 100%; } .auth-page { grid-template-columns: 1fr; place-content: start center; } }
+@media (max-width: 42rem) { .app-header { align-items: flex-start; flex-direction: column; } .app-header-actions, .app-header-identity { justify-content: space-between; width: 100%; } .auth-page, .repository-entry { grid-template-columns: 1fr; } .repository-form > div { grid-template-columns: 1fr; } .progress-heading { align-items: flex-start; flex-direction: column; } }

@@ -12,7 +12,7 @@ import shellStyles from './canvas-shell.module.css';
 import styles from './dependency-map.module.css';
 
 type Module = ReturnType<typeof fold>['modules'][number];
-type Data = { module: Module; open: boolean; toggle: () => void; select: (path: string) => void; hover: (path: string | null) => void; active: string | null; brightFiles: Set<string>; incomingFiles: Set<string>; outgoingFiles: Set<string>; searchMatches: Set<string>; connected: boolean };
+type Data = { module: Module; open: boolean; toggle: () => void; select: (path: string) => void; hover: (path: string | null) => void; active: string | null; brightFiles: Set<string>; incomingFiles: Set<string>; outgoingFiles: Set<string>; searchMatches: Set<string>; connected: boolean; category: string | null };
 type ModuleNode = Node<Data, 'module'>;
 const PaneHover = createContext<string | null>(null);
 function Folder({ data }: NodeProps<ModuleNode>) {
@@ -20,6 +20,7 @@ function Folder({ data }: NodeProps<ModuleNode>) {
   const list = useRef<HTMLDivElement>(null);
   const selectedRow = useRef<HTMLDivElement>(null);
   const hovered = paneHover !== null && data.module.files.some(file => file.path === paneHover);
+  const categoryMatches = data.category === null ? data.module.files.length : data.module.files.filter(file => file.extension === data.category).length;
 
   useEffect(() => {
     const container = list.current;
@@ -38,7 +39,7 @@ function Folder({ data }: NodeProps<ModuleNode>) {
     <Handle type="target" position={Position.Left} id="in" />
     <button className={styles.header} onClick={event=>{event.stopPropagation();data.toggle();}} aria-expanded={data.open} title={data.module.id}>
       <strong>{data.module.label}</strong>
-      <span>{data.module.files.length} files · in {data.module.fanIn} · out {data.module.fanOut}</span>
+      <span>{data.category === null ? `${data.module.files.length} files` : `${categoryMatches} of ${data.module.files.length} match`} · in {data.module.fanIn} · out {data.module.fanOut}</span>
     </button>
     {data.open && <div ref={list} className={`${styles.fileList} nopan nowheel`}>
       {data.module.files.map(file => {
@@ -49,7 +50,7 @@ function Folder({ data }: NodeProps<ModuleNode>) {
           data-direction={direction}
           data-pane-hover={rowHovered}
           data-search-match={data.searchMatches.has(file.path)}
-          style={{ opacity: rowHovered || !data.active || data.brightFiles.has(file.path) ? 1 : 0.15 }}
+          style={{ opacity: data.category !== null && file.extension !== data.category ? 0.15 : rowHovered || !data.active || data.brightFiles.has(file.path) ? 1 : 0.15 }}
           onMouseEnter={() => data.hover(file.path)}
           onMouseLeave={event => {
             const next = event.relatedTarget;
@@ -65,9 +66,9 @@ function Folder({ data }: NodeProps<ModuleNode>) {
   </div>;
 }
 const nodeTypes = { module: Folder };
-type MapProps = { result: ParserResult; repository: string };
+type MapProps = { result: ParserResult; repository: string; category: string | null };
 
-function Canvas({ result, repository }: MapProps) {
+function Canvas({ result, repository, category }: MapProps) {
   const folded = useMemo(()=>fold(result.files,result.edges),[result]);
   const details = useMemo(() => buildRepositoryDetails(result), [result]);
   const folders = useMemo(() => new Map(folded.modules.map(folder => [folder.id, folder])), [folded]);
@@ -94,7 +95,7 @@ function Canvas({ result, repository }: MapProps) {
         if(selectedFiles.has(e.source)) { outgoingFiles.add(e.target); related.add(e.target); }
       }
     }
-    const nodes: ModuleNode[]=folded.modules.map(module=>{const connected=!selection||module.files.some(file=>related.has(file.path));return {id:module.id,type:'module',position:{x:0,y:0},zIndex:10,data:{module,open:opened.has(module.id),active:selection,brightFiles:related,incomingFiles,outgoingFiles,searchMatches,connected,hover:setMapHover,toggle:()=>{setOpened(previous=>{const next=new Set(previous);if(next.has(module.id))next.delete(module.id);else next.add(module.id);return next;});setSelection(module.id);},select:setSelection},style:{width:Math.max(240,module.label.length*8+48),height:opened.has(module.id)?364:64+Math.sqrt(module.fanIn)*12}};});
+    const nodes: ModuleNode[]=folded.modules.map(module=>{const connected=(!selection||module.files.some(file=>related.has(file.path)))&&(category===null||module.files.some(file=>file.extension===category));return {id:module.id,type:'module',position:{x:0,y:0},zIndex:10,data:{module,open:opened.has(module.id),active:selection,brightFiles:related,incomingFiles,outgoingFiles,searchMatches,connected,category,hover:setMapHover,toggle:()=>{setOpened(previous=>{const next=new Set(previous);if(next.has(module.id))next.delete(module.id);else next.add(module.id);return next;});setSelection(module.id);},select:setSelection},style:{width:Math.max(240,module.label.length*8+48),height:opened.has(module.id)?364:64+Math.sqrt(module.fanIn)*12}};});
     const folderEdges=new Map<string,{source:string;target:string;direct:boolean;incoming:boolean}>();
     for(const edge of result.edges){
       const source=folded.owner.get(edge.source);
@@ -121,7 +122,7 @@ function Canvas({ result, repository }: MapProps) {
       style:{
         stroke:pair.direct?(pair.incoming?'#87b6a1':'#c4aa80'):(selection?'#3d423f':'#b5beb9'),
         strokeWidth:pair.direct?2.5:0.65,
-        opacity:pair.direct?1:(selection?0.08:0.9),
+        opacity:category !== null ? 0.12 : pair.direct?1:(selection?0.08:0.9),
       },
       data:{index},
     }));
@@ -131,7 +132,7 @@ function Canvas({ result, repository }: MapProps) {
     dagre.layout(graph);
     for(const n of nodes){const p=graph.node(n.id);n.position={x:p.x-p.width/2,y:p.y-p.height/2};}
     return {nodes,edges};
-  },[folded,opened,search,selection,result]);
+  },[category,folded,opened,search,selection,result]);
   const fittedExpansion = useRef<Set<string> | null>(null);
   useEffect(()=>{
     // Selection only changes emphasis, never the user's viewport.

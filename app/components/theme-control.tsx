@@ -27,16 +27,16 @@ function applyTheme(preference: ThemePreference) {
 }
 
 export function ThemeControl() {
-  const [preference, setPreference] = useState<ThemePreference>(() => {
-    if (typeof window === "undefined") {
-      return "system";
-    }
+  const [preference, setPreference] = useState<ThemePreference>("system");
 
+  useEffect(() => {
     const savedPreference = localStorage.getItem(storageKey);
-    return options.some((option) => option.value === savedPreference)
+    const initialPreference = options.some((option) => option.value === savedPreference)
       ? (savedPreference as ThemePreference)
       : "system";
-  });
+    const frame = window.requestAnimationFrame(() => setPreference(initialPreference));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     applyTheme(preference);

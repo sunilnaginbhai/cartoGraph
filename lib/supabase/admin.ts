@@ -7,7 +7,9 @@ type RequiredAdminEnvironment =
   | "SUPABASE_SECRET_KEY";
 
 function environmentValue(name: RequiredAdminEnvironment) {
-  const value = process.env[name];
+  const value = name === "SUPABASE_SECRET_KEY"
+    ? process.env.SUPABASE_SECRET_KEY ?? process.env.SUPERBASE_SECRET_KEY
+    : process.env[name];
 
   if (!value) {
     throw new Error(`${name} must be set before starting Cartograph.`);

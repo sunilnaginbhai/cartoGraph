@@ -1,4 +1,5 @@
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { ThemeControl } from "../components/theme-control";
 
@@ -7,9 +8,9 @@ export default function WorkspaceLayout({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-identity">
-          <a className="product-mark" href="/workspace">
+          <Link className="product-mark" href="/workspace">
             Cartograph
-          </a>
+          </Link>
           <OrganizationSwitcher
             afterCreateOrganizationUrl="/workspace"
             afterSelectOrganizationUrl="/workspace"

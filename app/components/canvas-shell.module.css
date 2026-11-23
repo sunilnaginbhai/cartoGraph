@@ -55,10 +55,22 @@
 .rail h1 {color:var(--map-text);font-size:13px;margin:0 0 8px;font-weight:500;}
 .rail h2 {margin:32px 0 8px;padding-bottom:10px;border-bottom:1px solid var(--map-border);font-size:11px;font-weight:500;color:var(--map-muted);}
 .rail p {font-size:11px;line-height:1.8;margin:12px 0;}
-.category {display:flex;align-items:center;gap:10px;margin:2px -8px;padding:9px 8px;border:1px solid transparent;color:var(--map-text);cursor:pointer;}
+.coverage {border:1px solid var(--map-border);margin:16px -8px 0;}
+.coverage summary {align-items:center;cursor:pointer;display:flex;gap:8px;padding:9px 8px;}
+.coverage summary strong {color:var(--map-text);margin-left:auto;}
+.coverage p {border-top:1px solid var(--map-border);margin:0;padding:8px;}
+.coverage summary:focus-visible {outline:1px solid var(--map-selected);outline-offset:2px;}
+.rerunForm {margin:10px -8px 0;}
+.rerunForm button {background:transparent;border:1px solid var(--map-border);color:var(--map-text);cursor:pointer;font:inherit;min-height:36px;padding:0 8px;width:100%;}
+.rerunForm button:hover {border-color:var(--map-selected);}
+.rerunForm button:focus-visible {outline:1px solid var(--map-selected);outline-offset:2px;}
+.category {display:flex;align-items:center;gap:10px;margin:2px -8px;padding:9px 8px;border:1px solid transparent;color:var(--map-text);cursor:pointer;width:calc(100% + 16px);font:inherit;text-align:left;}
 .category:hover {background:var(--map-node);border-color:var(--map-selected);box-shadow:0 0 12px color-mix(in srgb,var(--map-selected) 16%,transparent);}
+.category[data-active="true"] {background:var(--map-node);border-color:var(--map-selected);}
 .category span {width:8px;height:8px;}
+.category span[data-swatch="0"] {background:#8ba9cc}.category span[data-swatch="1"] {background:#ba9ccd}.category span[data-swatch="2"] {background:#87b6a1}.category span[data-swatch="3"] {background:#c4aa80}
 .category small {margin-left:auto;color:var(--map-muted);font-size:11px;}
+.category:focus-visible {outline:1px solid var(--map-selected);outline-offset:1px;}
 
 .stage {
   background-color: var(--map-canvas);
@@ -69,6 +81,11 @@
   --xy-controls-button-border-color: var(--map-border);
   min-height: 0;
   min-width: 0;
+}
+
+:global(:root[data-theme="light"]) .stage {
+  --xy-controls-button-background-color-hover: #dde3d7;
+  --xy-controls-button-box-shadow: 0 1px 4px rgba(23, 25, 20, 0.12);
 }
 
 .resizer {
